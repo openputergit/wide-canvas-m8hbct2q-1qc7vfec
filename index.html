@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Packaging Material Recommender</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        .loading {
+            display: none;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .recommendation-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .recommendation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .material-property {
+            transition: all 0.3s ease;
+        }
+        .material-property:hover {
+            background-color: #EBF5FF;
+        }
+        .structure-card {
+            transition: transform 0.3s ease;
+        }
+        .structure-card:hover {
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-blue-600 text-white p-4 shadow-lg sticky top-0 z-10">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold"><i class="bi bi-box-seam"></i> Smart Packaging Material Recommender</h1>
+            <div class="hidden md:block">
+                <a href="#" class="text-white hover:text-blue-100 px-3 py-2 rounded">Home</a>
+                <a href="#structures" class="text-white hover:text-blue-100 px-3 py-2 rounded">Structures</a>
+                <a href="#comparison" class="text-white hover:text-blue-100 px-3 py-2 rounded">Material Comparison</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto p-4 space-y-8">
+        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-6">
+            <h2 class="text-lg font-medium text-blue-800 mb-2"><i class="bi bi-info-circle-fill"></i> Smart Recommendation System</h2>
+            <p class="text-blue-700">Our AI-powered system helps you find the perfect packaging material based on your product requirements and preferences.</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- Input Form -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4">Product Requirements</h2>
+                <form id="recommendationForm" class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700">Product Category</label>
+                        <select id="productType" class="w-full p-2 border rounded">
+                            <option value="">Select Product Category</option>
+                            <option value="dairy">Dairy Products</option>
+                            <option value="meat">Meat & Seafood</option>
+                            <option value="snacks">Snacks & Chips</option>
+                            <option value="beverages">Beverages</option>
+                            <option value="pharmaceuticals">Pharmaceuticals</option>
+                            <option value="produce">Fresh Produce</option>
+                            <option value="frozen">Frozen Food</option>
+                            <option value="coffee">Coffee & Tea</option>
+                            <option value="cosmetics">Cosmetics & Personal Care</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700">Required Shelf Life</label>
+                        <select id="shelfLife" class="w-full p-2 border rounded">
+                            <option value="">Select Shelf Life</option>
+                            <option value="short">Short-term (< 3 months)</option>
+                            <option value="medium">Medium-term (3-6 months)</option>
+                            <option value="long">Long-term (> 6 months)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700">Barrier Level Required</label>
+                        <select id="barrierLevel" class="w-full p-2 border rounded">
+                            <option value="">Select Barrier Level</option>
+                            <option value="high">High Barrier</option>
+                            <option value="medium">Medium Barrier</option>
+                            <option value="low">Low Barrier</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700">Cost Sensitivity</label>
+                        <select id="costSensitivity" class="w-full p-2 border rounded">
+                            <option value="">Select Cost Sensitivity</option>
+                            <option value="low">Low (Premium)</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High (Economic)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700">Sustainability Preference</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="sustainability" value="yes" class="mr-2">
+                                Yes
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="sustainability" value="no" class="mr-2">
+                                No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700">Storage Conditions</label>
+                        <select id="storageConditions" class="w-full p-2 border rounded">
+                            <option value="">Select Storage Conditions</option>
+                            <option value="ambient">Ambient</option>
+                            <option value="refrigerated">Refrigerated</option>
+                            <option value="frozen">Frozen</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                        <i class="bi bi-search"></i> Get Recommendations
+                    </button>
+                </form>
+            </div>
+
+            <!-- Results Section -->
+            <div class="space-y-4">
+                <div id="loading" class="loading flex justify-center items-center h-64">
+                    <i class="bi bi-arrow-repeat text-4xl text-blue-600"></i>
+                </div>
+                
+                <div id="recommendations" class="space-y-4 hidden">
+                    <h2 class="text-xl font-semibold flex items-center gap-2">
+                        <i class="bi bi-award-fill text-blue-600"></i> Top Recommendations
+                    </h2>
+                    <div id="recommendationsList" class="space-y-4"></div>
+                </div>
+
+                <div id="materialDetails" class="hidden bg-white p-6 rounded-lg shadow-md mt-4">
+                    <h3 class="text-lg font-semibold mb-4" id="materialDetailsTitle"></h3>
+                    <div class="space-y-2" id="materialPropertiesList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Packaging Structures Section -->
+        <div id="structures" class="pt-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Tentative Packaging Structures</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Structure 1 -->
+                <div class="structure-card bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="h-40 bg-blue-600 flex items-center justify-center">
+                        <i class="bi bi-layers-fill text-white text-5xl"></i>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold mb-2">Multilayer Film (PE/EVOH/PE)</h3>
+                        <p class="text-gray-600 mb-3">High-barrier structure ideal for meat, dairy, and sensitive products requiring extended shelf life.</p>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Oxygen Barrier:</span>
+                                <span class="font-medium">Excellent</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Moisture Barrier:</span>
+                                <span class="font-medium">Good</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Cost:</span>
+                                <span class="font-medium">Medium-High</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Structure 2 -->
+                <div class="structure-card bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="h-40 bg-green-600 flex items-center justify-center">
+                        <i class="bi bi-recycle text-white text-5xl"></i>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold mb-2">Sustainable PLA/PBAT Blend</h3>
+                        <p class="text-gray-600 mb-3">Environmentally friendly structure for products with medium barrier requirements and sustainability focus.</p>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Oxygen Barrier:</span>
+                                <span class="font-medium">Moderate</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Moisture Barrier:</span>
+                                <span class="font-medium">Moderate</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Cost:</span>
+                                <span class="font-medium">Medium</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Structure 3 -->
+                <div class="structure-card bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="h-40 bg-purple-600 flex items-center justify-center">
+                        <i class="bi bi-shield-check text-white text-5xl"></i>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold mb-2">Paper/PE/Aluminum Laminate</h3>
+                        <p class="text-gray-600 mb-3">Ultra-high barrier structure for pharmaceutical, coffee, and long-shelf-life products.</p>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Oxygen Barrier:</span>
+                                <span class="font-medium">Excellent</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Moisture Barrier:</span>
+                                <span class="font-medium">Excellent</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Cost:</span>
+                                <span class="font-medium">High</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Material Comparison Section -->
+        <div id="comparison" class="pt-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Material Comparison</h2>
+            
+            <div class="overflow-x-auto bg-white rounded-lg shadow">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Material</th>
+                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Oxygen Barrier</th>
+                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Moisture Barrier</th>
+                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cost</th>
+                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sustainability</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">LDPE</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Low</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Medium</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Low</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Recyclable</td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">HDPE</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Medium</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">High</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Low</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Recyclable</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">PET</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Medium</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Medium</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Medium</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Recyclable</td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">EVOH</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Very High</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Medium</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">High</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Limited</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Aluminum Foil</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Very High</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Very High</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">High</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Recyclable</td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">PLA</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Low</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Low</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Medium</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Biodegradable</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white p-6 mt-12">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Smart Packaging Material Recommender</h3>
+                    <p class="text-gray-300">Our AI-powered system helps you find the perfect packaging material for your product needs.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-300 hover:text-white">Home</a></li>
+                        <li><a href="#structures" class="text-gray-300 hover:text-white">Packaging Structures</a></li>
+                        <li><a href="#comparison" class="text-gray-300 hover:text-white">Material Comparison</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact</h3>
+                    <p class="text-gray-300">Have questions about our recommendations?</p>
+                    <p class="text-gray-300 mt-2">Email: info@smartpackaging.com</p>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400">
+                <p>© 2023 Smart Packaging Material Recommender. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const materialDatabase = {
+            dairy: {
+                high: ['EVOH', 'PVDC', 'Aluminum Foil'],
+                medium: ['PET', 'HDPE', 'Nylon (BOPA)'],
+                low: ['LDPE', 'PP']
+            },
+            meat: {
+                high: ['EVOH/PE Multilayer', 'PA/PE Multilayer', 'Aluminum Foil'],
+                medium: ['Nylon (BOPA)', 'PVDC', 'PET'],
+                low: ['HDPE', 'PP']
+            },
+            snacks: {
+                high: ['MetPET', 'EVOH', 'Aluminum Foil'],
+                medium: ['BOPP', 'PET', 'MetOPP'],
+                low: ['LDPE', 'PP']
+            },
+            beverages: {
+                high: ['PET', 'EVOH', 'Aluminum Foil'],
+                medium: ['Nylon (BOPA)', 'HDPE'],
+                low: ['LDPE', 'PP']
+            },
+            pharmaceuticals: {
+                high: ['PVDC', 'Aluminum Foil', 'PCTFE'],
+                medium: ['PET', 'Nylon (BOPA)'],
+                low: ['HDPE', 'PP']
+            },
+            produce: {
+                high: ['Nylon (BOPA)', 'Biodegradable PBAT'],
+                medium: ['PET', 'BOPP'],
+                low: ['LDPE', 'PP', 'Paper-PE Laminate']
+            },
+            frozen: {
+                high: ['EVOH', 'PVDC', 'PA/PE Multilayer'],
+                medium: ['Nylon (BOPA)', 'PET', 'HDPE'],
+                low: ['LDPE', 'PP']
+            },
+            coffee: {
+                high: ['Aluminum Foil', 'MetPET', 'PVDC'],
+                medium: ['PET', 'Nylon (BOPA)'],
+                low: ['Paper-PE Laminate', 'LDPE']
+            },
+            cosmetics: {
+                high: ['PVDC', 'Aluminum Foil', 'MetPET'],
+                medium: ['PET', 'HDPE', 'Nylon (BOPA)'],
+                low: ['LDPE', 'PP', 'PS']
+            }
+        };
+
+        const materialProperties = {
+            'EVOH': {
+                oxygenBarrier: 'Very High (0.01–0.1 cc/m²/24hr)',
+                moistureBarrier: 'Medium (0.5–10 g/m²/24hr)',
+                density: '1.12–1.15 g/cm³',
+                flexibility: 'Low',
+                cost: 'High',
+                bestFor: 'Pharmaceuticals, Coffee, Dairy',
+                storageConditions: 'Ambient, Refrigerated',
+                sustainability: 'Limited recyclability'
+            },
+            'PVDC': {
+                oxygenBarrier: 'Very High (0.1–0.3 cc/m²/24hr)',
+                moistureBarrier: 'Very High (0.2–0.5 g/m²/24hr)',
+                density: '1.75 g/cm³',
+                flexibility: 'Low',
+                cost: 'High',
+                bestFor: 'Meat, Cheese, Snacks',
+                storageConditions: 'Refrigerated, Ambient',
+                sustainability: 'Limited recyclability'
+            },
+            'Aluminum Foil': {
+                oxygenBarrier: 'Excellent (<0.01 cc/m²/24hr)',
+                moistureBarrier: 'Excellent (<0.01 g/m²/24hr)',
+                density: '2.7 g/cm³',
+                flexibility: 'Low',
+                cost: 'High',
+                bestFor: 'Dairy, Pharmaceuticals, Coffee',
+                storageConditions: 'Ambient, Refrigerated',
+                sustainability: 'Recyclable'
+            },
+            'PET': {
+                oxygenBarrier: 'Medium (50–100 cc/m²/24hr)',
+                moistureBarrier: 'Medium (15–20 g/m²/24hr)',
+                density: '1.34–1.39 g/cm³',
+                flexibility: 'Medium',
+                cost: 'Medium',
+                bestFor: 'Beverages, Sauces',
+                storageConditions: 'Ambient, Refrigerated',
+                sustainability: 'Recyclable'
+            },
+            'HDPE': {
+                oxygenBarrier: 'Medium (400–500 cc/m²/24hr)',
+                moistureBarrier: 'High (0.5–1 g/m²/24hr)',
+                density: '0.941–0.965 g/cm³',
+                flexibility: 'Medium',
+                cost: 'Low',
+                bestFor: 'Dairy, Frozen Food',
+                storageConditions: 'Refrigerated, Frozen',
+                sustainability: 'Recyclable'
+            },
+            'Nylon (BOPA)': {
+                oxygenBarrier: 'Medium-High (10–50 cc/m²/24hr)',
+                moistureBarrier: 'Medium (20–30 g/m²/24hr)',
+                density: '1.13–1.15 g/cm³',
+                flexibility: 'Medium',
+                cost: 'Medium',
+                bestFor: 'Frozen Food, Pet Food',
+                storageConditions: 'Frozen, Refrigerated',
+                sustainability: 'Limited recyclability'
+            },
+            'LDPE': {
+                oxygenBarrier: 'Low (1,500–2,000 cc/m²/24hr)',
+                moistureBarrier: 'Medium (5–20 g/m²/24hr)',
+                density: '0.910–0.940 g/cm³',
+                flexibility: 'High',
+                cost: 'Low',
+                bestFor: 'Snacks, Fresh Produce',
+                storageConditions: 'Ambient',
+                sustainability: 'Recyclable'
+            },
+            'PP': {
+                oxygenBarrier: 'Low (2,000–8,000 cc/m²/24hr)',
+                moistureBarrier: 'Medium (5–10 g/m²/24hr)',
+                density: '0.895–0.920 g/cm³',
+                flexibility: 'High',
+                cost: 'Low',
+                bestFor: 'Bakery, Cereal',
+                storageConditions: 'Ambient',
+                sustainability: 'Recyclable'
+            },
+            'MetPET': {
+                oxygenBarrier: 'Very High (0.1–0.5 cc/m²/24hr)',
+                moistureBarrier: 'High (0.5–1 g/m²/24hr)',
+                density: '1.4 g/cm³',
+                flexibility: 'Low',
+                cost: 'High',
+                bestFor: 'Snacks, Coffee',
+                storageConditions: 'Ambient',
+                sustainability: 'Limited recyclability'
+            },
+            'BOPP': {
+                oxygenBarrier: 'Low-Medium (800-2500 cc/m²/24hr)',
+                moistureBarrier: 'Medium (5-8 g/m²/24hr)',
+                density: '0.91 g/cm³',
+                flexibility: 'High',
+                cost: 'Low',
+                bestFor: 'Snacks, Confectionery',
+                storageConditions: 'Ambient',
+                sustainability: 'Recyclable'
+            },
+            'MetOPP': {
+                oxygenBarrier: 'Medium (0.2–1.5 cc/m²/24hr)',
+                moistureBarrier: 'Medium (1–2 g/m²/24hr)',
+                density: '0.91–0.93 g/cm³',
+                flexibility: 'Medium',
+                cost: 'Medium',
+                bestFor: 'Chips, Candy',
+                storageConditions: 'Ambient',
+                sustainability: 'Limited recyclability'
+            },
+            'PCTFE': {
+                oxygenBarrier: 'Very High (0.01-0.1 cc/m²/24hr)',
+                moistureBarrier: 'Very High (0.01-0.1 g/m²/24hr)',
+                density: '2.1-2.2 g/cm³',
+                flexibility: 'Low',
+                cost: 'Very High',
+                bestFor: 'Pharmaceuticals, Medical',
+                storageConditions: 'Ambient',
+                sustainability: 'Limited recyclability'
+            },
+            'EVOH/PE Multilayer': {
+                oxygenBarrier: 'Very High (0.005–0.05 cc/m²/24hr)',
+                moistureBarrier: 'High (0.1–0.5 g/m²/24hr)',
+                density: '1.05 g/cm³',
+                flexibility: 'Medium',
+                cost: 'High',
+                bestFor: 'Vacuum Packaging, Meat',
+                storageConditions: 'Ambient, Refrigerated',
+                sustainability: 'Limited recyclability'
+            },
+            'PA/PE Multilayer': {
+                oxygenBarrier: 'High (5–50 cc/m²/24hr)',
+                moistureBarrier: 'Medium-High (5–15 g/m²/24hr)',
+                density: '1.1 g/cm³',
+                flexibility: 'Medium',
+                cost: 'High',
+                bestFor: 'High-Barrier Meat Packaging',
+                storageConditions: 'Refrigerated',
+                sustainability: 'Limited recyclability'
+            },
+            'Biodegradable PBAT': {
+                oxygenBarrier: 'Low (3,000–5,000 cc/m²/24hr)',
+                moistureBarrier: 'Low (25–35 g/m²/24hr)',
+                density: '1.25 g/cm³',
+                flexibility: 'High',
+                cost: 'Medium',
+                bestFor: 'Compostable Packaging, Fresh Produce',
+                storageConditions: 'Ambient',
+                sustainability: 'Biodegradable'
+            },
+            'Paper-PE Laminate': {
+                oxygenBarrier: 'Low-Medium (100–500 cc/m²/24hr)',
+                moistureBarrier: 'Medium (30–50 g/m²/24hr)',
+                density: '0.92 g/cm³',
+                flexibility: 'Medium',
+                cost: 'Medium',
+                bestFor: 'Coffee, Sugar, Dry Goods',
+                storageConditions: 'Ambient',
+                sustainability: 'Partially recyclable'
+            }
+        };
+
+        document.getElementById('recommendationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            document.getElementById('loading').style.display = 'flex';
+            document.getElementById('recommendations').classList.add('hidden');
+            document.getElementById('materialDetails').classList.add('hidden');
+
+            setTimeout(() => {
+                const productType = document.getElementById('productType').value;
+                const barrierLevel = document.getElementById('barrierLevel').value;
+                const costSensitivity = document.getElementById('costSensitivity').value;
+                const sustainability = document.querySelector('input[name="sustainability"]:checked')?.value;
+                const storageConditions = document.getElementById('storageConditions').value;
+                const shelfLife = document.getElementById('shelfLife').value;
+
+                const recommendations = getRecommendations(productType, barrierLevel, costSensitivity, sustainability);
+                displayRecommendations(recommendations);
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('recommendations').classList.remove('hidden');
+            }, 1500);
+        });
+
+        function getRecommendations(productType, barrierLevel, costSensitivity, sustainability) {
+            let recommendations = materialDatabase[productType]?.[barrierLevel] || [];
+            
+            // Filter recommendations based on cost sensitivity if specified
+            if (costSensitivity && recommendations.length > 0) {
+                const costMap = { 'low': 'High', 'medium': 'Medium', 'high': 'Low' };
+                const targetCost = costMap[costSensitivity];
+                
+                // Less strict filtering to ensure we always return something
+                if (costSensitivity === 'high') {
+                    recommendations = recommendations.filter(material => 
+                        materialProperties[material]?.cost === 'Low' || 
+                        materialProperties[material]?.cost === 'Medium'
+                    );
+                } else if (costSensitivity === 'medium') {
+                    // Don't filter too much for medium cost
+                } else if (costSensitivity === 'low') {
+                    // Premium products, prioritize high-cost materials
+                    recommendations = recommendations.sort((a, b) => {
+                        const costA = materialProperties[a]?.cost;
+                        const costB = materialProperties[b]?.cost;
+                        if (costA === 'High' && costB !== 'High') return -1;
+                        if (costB === 'High' && costA !== 'High') return 1;
+                        return 0;
+                    });
+                }
+            }
+            
+            // Adjust for sustainability if needed
+            if (sustainability === 'yes' && recommendations.length > a) {
+                // Move sustainable options to the top
+                recommendations = recommendations.sort((a, b) => {
+                    const sustainA = materialProperties[a]?.sustainability?.includes('Recyclable') || 
+                                    materialProperties[a]?.sustainability?.includes('Biodegradable');
+                    const sustainB = materialProperties[b]?.sustainability?.includes('Recyclable') || 
+                                    materialProperties[b]?.sustainability?.includes('Biodegradable');
+                    if (sustainA && !sustainB) return -1;
+                    if (sustainB && !sustainA) return 1;
+                    return 0;
+                });
+            }
+            
+            return recommendations.slice(0, 3); // Return top 3 recommendations
+        }
+
+        function displayRecommendations(recommendations) {
+            const container = document.getElementById('recommendationsList');
+            container.innerHTML = '';
+
+            recommendations.forEach((material, index) => {
+                const card = document.createElement('div');
+                card.className = 'recommendation-card bg-white p-4 rounded-lg shadow-md border-l-4 border-blue-600';
+                
+                const materialProps = materialProperties[material] || {};
+                const materialCost = materialProps.cost || 'N/A';
+                const materialSustainability = materialProps.sustainability || 'N/A';
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-semibold">${index + 1}. ${material}</h3>
+                            <p class="text-gray-600">Recommended for your requirements</p>
+                            <div class="flex mt-2 space-x-2">
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">${materialCost} Cost</span>
+                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">${materialSustainability}</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <i class="bi bi-check-circle-fill text-green-500 text-2xl mb-2"></i>
+                            <button class="text-blue-600 hover:text-blue-800 text-sm view-details" data-material="${material}">View Details</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            if (recommendations.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                        <p class="text-yellow-700">No recommendations found for the selected criteria. Please adjust your requirements.</p>
+                    </div>
+                `;
+            }
+
+            // Add event listeners for view details buttons
+            document.querySelectorAll('.view-details').forEach(button => {
+                button.addEventListener('click', function() {
+                    const material = this.getAttribute('data-material');
+                    showMaterialDetails(material);
+                });
+            });
+        }
+
+        function showMaterialDetails(material) {
+            const materialProps = materialProperties[material] || {};
+            document.getElementById('materialDetailsTitle').textContent = `${material} - Detailed Properties`;
+            
+            const propertiesList = document.getElementById('materialPropertiesList');
+            propertiesList.innerHTML = '';
+
+            // Add each property to the details panel
+            for (const [key, value] of Object.entries(materialProps)) {
+                const propertyEl = document.createElement('div');
+                propertyEl.className = 'material-property flex justify-between p-2 border-b';
+                
+                // Convert camelCase to Title Case
+                const formattedKey = key
+                    .replace(/([A-Z])/g, ' $1')
+                    .replace(/^./, function(str) { return str.toUpperCase(); });
+                
+                propertyEl.innerHTML = `
+                    <span class="font-medium">${formattedKey}:</span>
+                    <span>${value}</span>
+                `;
+                propertiesList.appendChild(propertyEl);
+            }
+
+            document.getElementById('materialDetails').classList.remove('hidden');
+        }
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
